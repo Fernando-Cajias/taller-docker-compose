@@ -1,1 +1,44 @@
- 
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: taller_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: taller_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: taller_flask_web
+    restart: always
+    ports:
+      - "8000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=taller_db
+      - DB_USER=admin
+      - DB_PASSWORD=secret
+    depends_on:
+      - db
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: taller_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
